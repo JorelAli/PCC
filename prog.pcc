@@ -1,0 +1,7 @@
+let u = 0
+v equals 1
+w is 2
+x = 3
+set y to 4
+let z be 5
+print u, v, w, x, y and z

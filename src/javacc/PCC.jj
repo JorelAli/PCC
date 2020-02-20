@@ -1,0 +1,325 @@
+options {
+	STATIC = false;
+}
+
+PARSER_BEGIN(PCC)
+
+package javacc;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ListIterator;
+import java.util.Stack;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.HashSet;
+
+import java.util.regex.Pattern;
+
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
+
+import java.nio.file.Files;
+
+import java.io.InputStream;
+import java.nio.charset.Charset;
+
+//Pseudocode Compiler
+public class PCC {
+
+  	public static Map<String, Object> scope = new HashMap<String, Object>();
+	
+	public static void parse(String input) {
+	  	try { 
+			InputStream inputStream = new ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
+			new PCC(inputStream).input();
+		} catch(Exception e) {
+		  	e.printStackTrace();
+		  	return;
+		}
+	}
+
+	public static Object addToVar(Object o, String varName) {
+		Object variable = scope.get(varName);
+		if(variable instanceof List) {
+			List l = (List) variable;
+			l.add(o);
+			return l;
+		} else if(variable instanceof String) {
+			String str = (String) variable;
+			if(o instanceof List) {
+				List list = (List) o;
+				for(Object listElement : list) {
+					scope.put(varName, addToVar(listElement, varName));
+				}
+				return scope.get(varName);
+			}
+			return new StringBuilder(str).append(o).toString();
+		} else if(variable instanceof Number) {
+		  	Number number = (Number) variable;
+			double c = number.doubleValue();
+			if(o instanceof List) {
+			  	List list = (List) o;
+				for(Object listElement : list) {
+					scope.put(varName, addToVar(listElement, varName));
+				}
+				return scope.get(varName);
+			} else if(o instanceof Number) {
+				Number n = (Number) o;
+				c += n.doubleValue();
+				if(Math.floor(c) == c) {
+					return (int) c;
+				} else {
+					return c;
+				}
+			} else if(o instanceof String) {
+			  	String str = new StringBuilder(((String) o)).reverse().toString();
+			  	char[] arr = str.toCharArray();
+			  	for(int i = 0; i < arr.length; i++) {
+					c += arr[i] * Math.pow(10, i);
+			  	} 
+				if(Math.floor(c) == c) {
+					return (int) c;
+				} else {
+					return c;
+				}
+			}
+			return c; //wat
+		}
+		return null; //wat
+	}
+
+	enum ModificationType {
+		INCREMENT, DECREMENT
+	}
+	
+	public static Object modify(Object o, ModificationType type) {
+		if(o instanceof String) {
+			String str = (String) o;
+			char c = str.charAt(str.length() - 1);
+
+			switch(type) {
+				case INCREMENT: c++; break;
+				case DECREMENT: c--; break;
+			}
+			
+			StringBuilder builder = new StringBuilder(str);
+			builder.replace(str.length() - 1, str.length(), String.valueOf(c));
+			return builder.toString();
+		} else if(o instanceof List) {
+			List l = (List) o;
+			ListIterator it = l.listIterator();
+			while(it.hasNext()) {
+				it.set(modify(it.next(), type));
+			}
+			return l;
+		} else if(o instanceof Number) {
+			Number number = (Number) o;
+			if(number.doubleValue() == number.intValue()) {
+				int c = number.intValue();
+				switch(type) {
+					case INCREMENT: c++; break;
+					case DECREMENT: c--; break;
+				}
+				return c;
+			} else {
+				double c = number.doubleValue();
+				switch(type) {
+					case INCREMENT: c++; break;
+					case DECREMENT: c--; break;
+				}
+				return c;
+			}
+		}
+		return o;
+	}
+}
+
+PARSER_END(PCC)
+
+
+//Strings
+TOKEN: { < QUOTEMARK : "\"" > : STRING_STATE }
+<STRING_STATE> TOKEN: {
+  	< ENDQUOTE : <QUOTEMARK> > : DEFAULT
+	| < STRING_CHAR :~["\""]>
+}
+
+//Symbols
+TOKEN : { < OPEN_SQUARE : "[" > }
+TOKEN : { < CLOSE_SQUARE : "]" > }
+TOKEN : { < COMMA : "," > }
+TOKEN : { < INCREMENT : "+" > }
+TOKEN : { < DECREMENT : "-" > }
+TOKEN : { < EQUALS : "=" | "Equals" | "EQUALS" | "equals" > }
+
+
+//Keywords
+TOKEN : { < PRINT : "print" | "Print" | "PRINT" > }
+TOKEN : { < ADD : "ADD" | "Add" | "add" > }
+TOKEN : { < TO : "To" | "TO" | "to" > }
+TOKEN : { < SET : "Set" | "SET" | "set" > }
+TOKEN : { < LET : "Let" | "LET" | "let" > }
+TOKEN : { < BE : "Be" | "BE" | "be" > }
+TOKEN : { < IS : "is" | "Is" | "IS" > }
+TOKEN : { < AND : "AND" | "And" | "and" > }
+
+TOKEN: { < COMMENT_STARTER : "COMMENT" | "Comment" | "comment" > : COMMENT_MODE }
+<COMMENT_MODE> TOKEN: {
+  	< END_COMMENT : <NEWLINE> > : DEFAULT
+	| < COMMENT_STRING :~["\n"]>
+}
+
+//Other
+TOKEN : { < VAR_NAME : ["A"-"Z", "a"-"z", "_"] (["A"-"Z", "a"-"z", "0"-"9", "_", "."])* (["\'"])* > }
+TOKEN : { < NUMBER : (["0"-"9"])+ (["."] (["0"-"9"])+)? > }
+TOKEN : { < NEWLINE : "\n" > }
+
+//Whitespace
+SKIP : { "\r" | " " | "\t" }
+
+
+/** Main endpoint */
+void input() throws Exception : {  } {
+	program()
+}
+
+
+void program() throws Exception : { } {
+	(
+	  statement() (< NEWLINE > | < EOF >)
+	  |	< COMMENT_STARTER >(< COMMENT_STRING >)*(< END_COMMENT >|< EOF >)
+	  | < NEWLINE >
+	)*
+}
+
+void statement() throws Exception : { } {
+	printStatement()
+	| (LOOKAHEAD(2) variableAssignment() | variableModification())
+	| addElementToVariable()
+}
+
+void addElementToVariable() throws Exception : { Object elem; Token varName; } {
+	< ADD >
+	elem = element()
+	< TO >
+	varName = < VAR_NAME >
+	{ scope.put(varName.image, addToVar(elem, varName.image)); }
+}
+
+//Object addElementToElement() throws Exception : { Object elem1; Object elem2; } {
+//  	< ADD >
+//  	elem1 = element()
+//  	< TO >
+//  	elem2 = element()
+//  	{ return addToElement(elem1, elem2); }
+//}
+
+void printStatement() throws Exception : { Object elem; } {
+  	< PRINT >
+  	elem = element()
+  	{ System.out.print(elem); }
+  	(
+  	  (< COMMA >
+  		elem = element()
+  		{ System.out.print(", " + elem); }  	  )*
+  	  < AND >
+  		elem = element()
+  		{ System.out.print(" and " + elem); }
+  	)?
+  	{ System.out.println(); }
+}
+
+String string() throws Exception : { Token character; } {
+	{ StringBuilder builder = new StringBuilder(); }
+	< QUOTEMARK > (character = < STRING_CHAR > { builder.append(character.image); })* < ENDQUOTE >
+  	{ return builder.toString(); }
+}
+
+void variableAssignment() throws Exception : { Token varName; Object element; } {
+  	(	  	(
+			varName = < VAR_NAME >
+			(< EQUALS > | < IS >)
+			element = element()
+		) | (
+			< SET >
+			varName = < VAR_NAME >
+			< TO >
+			element = element()
+		) | (
+			< LET >
+			varName = < VAR_NAME >
+			(< BE > | < EQUALS >)
+			element = element()
+		)
+	)
+	
+	{ scope.put(varName.image, element); }
+}
+
+void variableModification() throws Exception : { Token varName; Object elem; } {
+	{ StringBuilder builder = new StringBuilder(); }
+
+	varName = < VAR_NAME >
+	{ elem = scope.get(varName.image); }
+
+	elem = modification(elem)
+	{ scope.put(varName.image, elem); }
+}
+
+Object element() throws Exception : { Token token; Object elem; } {
+	(
+	  elem = string()
+	  | token = < NUMBER > {
+	    if(token.image.contains(".")) { 
+	    	elem = Double.parseDouble(token.image);
+	   	} else {
+			elem = Integer.parseInt(token.image);
+	   	}
+	   	return elem;
+	  }
+	  | elem = set()
+	  | token = < VAR_NAME > { elem = scope.get(token.image); }
+	)
+	elem = modification(elem)
+
+	{ return elem; }
+}
+
+Object modification(Object elem) throws Exception : { } {
+	(
+	  (
+		  < INCREMENT >
+		  { elem = modify(elem, ModificationType.INCREMENT); }
+	  ) | (
+		  < DECREMENT >
+		  { elem = modify(elem, ModificationType.DECREMENT); }
+	  )
+	)*
+	{ return elem; }
+}
+
+List set() throws Exception : { Token character; Object element; } {
+	{ List list = new LinkedList(); }
+	< OPEN_SQUARE >
+
+	(
+	  < CLOSE_SQUARE >
+	  | element = element()
+	    { list.add(element); }
+	    (
+	      < COMMA >
+	      element = element()
+	      { list.add(element); }
+	    )*
+	    < CLOSE_SQUARE >
+	)
+
+	{ return list; }
+}
