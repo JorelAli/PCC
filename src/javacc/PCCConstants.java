@@ -29,33 +29,41 @@ public interface PCCConstants {
   /** RegularExpression Id. */
   int EQUALS = 9;
   /** RegularExpression Id. */
-  int PRINT = 10;
+  int OPERATOR = 10;
   /** RegularExpression Id. */
-  int ADD = 11;
+  int PRINT = 11;
   /** RegularExpression Id. */
-  int TO = 12;
+  int ADD = 12;
   /** RegularExpression Id. */
-  int SET = 13;
+  int TO = 13;
   /** RegularExpression Id. */
-  int LET = 14;
+  int SET = 14;
   /** RegularExpression Id. */
-  int BE = 15;
+  int LET = 15;
   /** RegularExpression Id. */
-  int IS = 16;
+  int BE = 16;
   /** RegularExpression Id. */
-  int AND = 17;
+  int IS = 17;
   /** RegularExpression Id. */
-  int COMMENT_STARTER = 18;
+  int AND = 18;
   /** RegularExpression Id. */
-  int END_COMMENT = 19;
+  int NOT = 19;
   /** RegularExpression Id. */
-  int COMMENT_STRING = 20;
+  int IF = 20;
   /** RegularExpression Id. */
-  int VAR_NAME = 21;
+  int ENDIF = 21;
   /** RegularExpression Id. */
-  int NUMBER = 22;
+  int COMMENT_STARTER = 22;
   /** RegularExpression Id. */
-  int NEWLINE = 23;
+  int END_COMMENT = 23;
+  /** RegularExpression Id. */
+  int COMMENT_STRING = 24;
+  /** RegularExpression Id. */
+  int VAR_NAME = 25;
+  /** RegularExpression Id. */
+  int NUMBER = 26;
+  /** RegularExpression Id. */
+  int NEWLINE = 27;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -76,6 +84,7 @@ public interface PCCConstants {
     "\"+\"",
     "\"-\"",
     "<EQUALS>",
+    "<OPERATOR>",
     "<PRINT>",
     "<ADD>",
     "<TO>",
@@ -84,6 +93,9 @@ public interface PCCConstants {
     "<BE>",
     "<IS>",
     "<AND>",
+    "<NOT>",
+    "<IF>",
+    "<ENDIF>",
     "<COMMENT_STARTER>",
     "<END_COMMENT>",
     "<COMMENT_STRING>",

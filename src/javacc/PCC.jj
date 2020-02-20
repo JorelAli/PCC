@@ -82,7 +82,7 @@ public class PCC {
 			  	String str = new StringBuilder(((String) o)).reverse().toString();
 			  	char[] arr = str.toCharArray();
 			  	for(int i = 0; i < arr.length; i++) {
-					c += arr[i] * Math.pow(10, i);
+					c += arr[i];// * Math.pow(2, 8 * i);
 			  	} 
 				if(Math.floor(c) == c) {
 					return (int) c;
@@ -158,7 +158,7 @@ TOKEN : { < COMMA : "," > }
 TOKEN : { < INCREMENT : "+" > }
 TOKEN : { < DECREMENT : "-" > }
 TOKEN : { < EQUALS : "=" | "Equals" | "EQUALS" | "equals" > }
-
+TOKEN : { < OPERATOR : "<" | "<=" | ">=" | ">" >  }
 
 //Keywords
 TOKEN : { < PRINT : "print" | "Print" | "PRINT" > }
@@ -169,6 +169,10 @@ TOKEN : { < LET : "Let" | "LET" | "let" > }
 TOKEN : { < BE : "Be" | "BE" | "be" > }
 TOKEN : { < IS : "is" | "Is" | "IS" > }
 TOKEN : { < AND : "AND" | "And" | "and" > }
+TOKEN : { < NOT : "not" | "!" > }
+TOKEN : { < IF : "IF" | "If" | "if" > }
+TOKEN : { < ENDIF : "ENDIF" | "Endif" | "endif" > }
+
 
 TOKEN: { < COMMENT_STARTER : "COMMENT" | "Comment" | "comment" > : COMMENT_MODE }
 <COMMENT_MODE> TOKEN: {
@@ -203,6 +207,7 @@ void statement() throws Exception : { } {
 	printStatement()
 	| (LOOKAHEAD(2) variableAssignment() | variableModification())
 	| addElementToVariable()
+	| ifStatement()
 }
 
 void addElementToVariable() throws Exception : { Object elem; Token varName; } {
@@ -220,6 +225,38 @@ void addElementToVariable() throws Exception : { Object elem; Token varName; } {
 //  	elem2 = element()
 //  	{ return addToElement(elem1, elem2); }
 //}
+
+void ifStatement() throws Exception : { boolean success; } {
+  	< IF >
+  	(  	  success = evaluation()
+  	) 
+  	(		statement()
+		| < NEWLINE > 
+  	)*
+  	< ENDIF >
+	{ System.out.println("IF STATEMENT"); }
+}
+
+boolean evaluation() throws Exception : {Object elem1; Object elem2 = null; Token op = null;} {
+	(	  (< NOT >)?
+	  (
+	     elem1 = element()
+	  )
+	  (
+	    (
+	      op =< OPERATOR >
+	      | op =< EQUALS >
+	    )
+	    (
+	       elem2 = element()
+	    )
+	  )?
+	)
+	{
+	  return false;
+	}
+}
+
 
 void printStatement() throws Exception : { Object elem; } {
   	< PRINT >
