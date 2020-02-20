@@ -1,5 +1,6 @@
 x = 8
 IF x = 10
-    print "In if"
+    print "yay"
 ENDIF
-print "Out of if"
+print "nay"
+print "blah"

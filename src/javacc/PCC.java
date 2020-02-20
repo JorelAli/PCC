@@ -290,6 +290,11 @@ scope.put(varName.image, addToVar(elem, varName.image));
 void ifStatement() throws ParseException, Exception {boolean success;
     jj_consume_token(IF);
     success = evaluation();
+if(!success) {
+                        while(this.token.kind != PCCConstants.ENDIF) {
+                                this.token = getNextToken();
+                        }
+                }
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -327,8 +332,9 @@ void ifStatement() throws ParseException, Exception {boolean success;
         throw new ParseException();
       }
     }
-    jj_consume_token(ENDIF);
-System.out.println("IF STATEMENT");
+if(success) {
+            getNextToken();
+          }
   }
 
   final public boolean evaluation() throws ParseException, Exception {Object elem1; Object elem2 = null; Token op = null;
@@ -360,6 +366,9 @@ System.out.println("IF STATEMENT");
         throw new ParseException();
       }
       elem2 = element();
+if(elem1.equals(elem2) && op.image.equals("=")) {
+                        {if ("" != null) return true;}
+            }
       break;
       }
     default:

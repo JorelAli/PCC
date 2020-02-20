@@ -195,7 +195,7 @@ SKIP : { "\r" | " " | "\t" }
 
 /** Main endpoint */
 void input() throws Exception : {  } {
-	program()
+	program() 
 }
 
 
@@ -208,10 +208,11 @@ void program() throws Exception : { } {
 }
 
 void statement() throws Exception : { } {
-	printStatement()
+	( printStatement()
 	| (LOOKAHEAD(2) variableAssignment() | variableModification())
 	| addElementToVariable()
 	| ifStatement()
+	)
 }
 
 void addElementToVariable() throws Exception : { Object elem; Token varName; } {
@@ -232,30 +233,40 @@ void addElementToVariable() throws Exception : { Object elem; Token varName; } {
 
 void ifStatement() throws Exception : { boolean success; } {
   	< IF >
-  	(  	  success = evaluation()
-  	) 
-  	(		statement()
+  	success = evaluation()
+  	{
+		if(!success) {
+			while(this.token.kind != PCCConstants.ENDIF) {
+				this.token = getNextToken();
+			}
+		}
+  	}
+  	(
+		statement()
 		| < NEWLINE > 
   	)*
-  	< ENDIF >
-	{ System.out.println("IF STATEMENT"); }
+  	{
+  	  if(success) {
+  	    getNextToken();
+  	  }
+  	}
+//  	< ENDIF >
 }
 
-boolean evaluation() throws Exception : {Object elem1; Object elem2 = null; Token op = null;} {
-	(	  (< NOT >)?
+boolean evaluation() throws Exception : { Object elem1; Object elem2 = null; Token op = null; } {	(< NOT >)?
+	elem1 = element()
+	(
 	  (
-	     elem1 = element()
+	    op = < OPERATOR >
+	    | op = < EQUALS >
 	  )
-	  (
-	    (
-	      op =< OPERATOR >
-	      | op =< EQUALS >
-	    )
-	    (
-	       elem2 = element()
-	    )
-	  )?
-	)
+	  elem2 = element()
+	  {
+	    if(elem1.equals(elem2) && op.image.equals("=")) {
+			return true;
+	    }
+	  }
+	)?
 	{
 	  return evaluate(elem1,elem2,op);
 	}
