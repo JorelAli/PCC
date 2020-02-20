@@ -95,6 +95,10 @@ public class PCC implements PCCConstants {
                 INCREMENT, DECREMENT
         }
 
+        public static boolean evaluate(Object o1, Object o2, Token op) {
+                return false;
+        }
+
         public static Object modify(Object o, ModificationType type) {
                 if(o instanceof String) {
                         String str = (String) o;
@@ -362,7 +366,7 @@ System.out.println("IF STATEMENT");
       jj_la1[11] = jj_gen;
       ;
     }
-{if ("" != null) return false;}
+{if ("" != null) return evaluate(elem1,elem2,op);}
     throw new Error("Missing return statement in function");
   }
 
@@ -604,6 +608,19 @@ list.add(element);
     finally { jj_save(0, xla); }
   }
 
+  private boolean jj_3R_10()
+ {
+    if (jj_scan_token(SET)) return true;
+    if (jj_scan_token(VAR_NAME)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_3R_8()) return true;
+    return false;
+  }
+
   private boolean jj_3R_11()
  {
     if (jj_scan_token(LET)) return true;
@@ -634,19 +651,6 @@ list.add(element);
     jj_scanpos = xsp;
     if (jj_scan_token(17)) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_10()
- {
-    if (jj_scan_token(SET)) return true;
-    if (jj_scan_token(VAR_NAME)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
- {
-    if (jj_3R_8()) return true;
     return false;
   }
 

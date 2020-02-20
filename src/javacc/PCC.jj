@@ -98,6 +98,10 @@ public class PCC {
 	enum ModificationType {
 		INCREMENT, DECREMENT
 	}
+
+	public static boolean evaluate(Object o1, Object o2, Token op) {
+		return false;
+	}
 	
 	public static Object modify(Object o, ModificationType type) {
 		if(o instanceof String) {
@@ -253,7 +257,7 @@ boolean evaluation() throws Exception : {Object elem1; Object elem2 = null; Toke
 	  )?
 	)
 	{
-	  return false;
+	  return evaluate(elem1,elem2,op);
 	}
 }
 
