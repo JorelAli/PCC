@@ -51,19 +51,21 @@ public interface PCCConstants {
   /** RegularExpression Id. */
   int IF = 20;
   /** RegularExpression Id. */
-  int ENDIF = 21;
+  int ELSE = 21;
   /** RegularExpression Id. */
-  int COMMENT_STARTER = 22;
+  int ENDIF = 22;
   /** RegularExpression Id. */
-  int END_COMMENT = 23;
+  int COMMENT_STARTER = 23;
   /** RegularExpression Id. */
-  int COMMENT_STRING = 24;
+  int END_COMMENT = 24;
   /** RegularExpression Id. */
-  int VAR_NAME = 25;
+  int COMMENT_STRING = 25;
   /** RegularExpression Id. */
-  int NUMBER = 26;
+  int VAR_NAME = 26;
   /** RegularExpression Id. */
-  int NEWLINE = 27;
+  int NUMBER = 27;
+  /** RegularExpression Id. */
+  int NEWLINE = 28;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -95,6 +97,7 @@ public interface PCCConstants {
     "<AND>",
     "<NOT>",
     "<IF>",
+    "<ELSE>",
     "<ENDIF>",
     "<COMMENT_STARTER>",
     "<END_COMMENT>",

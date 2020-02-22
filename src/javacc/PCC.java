@@ -287,13 +287,15 @@ scope.put(varName.image, addToVar(elem, varName.image));
 //  	{ return addToElement(elem1, elem2); }
 //}
   final public 
-void ifStatement() throws ParseException, Exception {boolean success;
+void ifStatement() throws ParseException, Exception {boolean success; boolean elsed = false;
     jj_consume_token(IF);
     success = evaluation();
 if(!success) {
-                        while(this.token.kind != PCCConstants.ENDIF) {
+                        while(this.token.kind != PCCConstants.ENDIF && this.token.kind != PCCConstants.ELSE) {
+//				System.out.println(this.token.kind);
                                 this.token = getNextToken();
                         }
+                        elsed = this.token.kind == PCCConstants.ELSE;
                 }
     label_3:
     while (true) {
@@ -303,6 +305,7 @@ if(!success) {
       case SET:
       case LET:
       case IF:
+      case ELSE:
       case VAR_NAME:
       case NEWLINE:{
         ;
@@ -313,6 +316,15 @@ if(!success) {
         break label_3;
       }
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case ELSE:{
+        jj_consume_token(ELSE);
+if(success) {
+                                while(this.token.kind != PCCConstants.ENDIF) {
+                                        this.token = getNextToken();
+                                }
+                }
+        break;
+        }
       case PRINT:
       case ADD:
       case SET:
@@ -333,8 +345,19 @@ if(!success) {
       }
     }
 if(success) {
-            getNextToken();
-          }
+                        getNextToken();
+//	  	    if(elsed) {
+//				while(this.token.kind != PCCConstants.ENDIF) {
+//					this.token = getNextToken();
+//				}
+//	  		}
+                }
+
+                if (elsed){
+                        while(this.token.kind != PCCConstants.ENDIF) {
+                                this.token = getNextToken();
+                        }
+                }
   }
 
   final public boolean evaluation() throws ParseException, Exception {Object elem1; Object elem2 = null; Token op = null;
@@ -680,7 +703,7 @@ list.add(element);
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0xa50d800,0x8000001,0x1000000,0x800001,0xa50d800,0x2000000,0x210d800,0xa10d800,0xa10d800,0x80000,0x600,0x600,0x40,0x40040,0x8,0x20200,0x10200,0x200c000,0x6000012,0x180,0x180,0x40,0x6000032,};
+      jj_la1_0 = new int[] {0x1490d800,0x10000001,0x2000000,0x1000001,0x1490d800,0x4000000,0x410d800,0x1430d800,0x1430d800,0x80000,0x600,0x600,0x40,0x40040,0x8,0x20200,0x10200,0x400c000,0xc000012,0x180,0x180,0x40,0xc000032,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[1];
   private boolean jj_rescan = false;
@@ -888,7 +911,7 @@ list.add(element);
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[31];
+    boolean[] la1tokens = new boolean[32];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -902,7 +925,7 @@ list.add(element);
         }
       }
     }
-    for (int i = 0; i < 31; i++) {
+    for (int i = 0; i < 32; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

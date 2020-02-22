@@ -175,6 +175,7 @@ TOKEN : { < IS : "is" | "Is" | "IS" > }
 TOKEN : { < AND : "AND" | "And" | "and" > }
 TOKEN : { < NOT : "not" | "!" > }
 TOKEN : { < IF : "IF" | "If" | "if" > }
+TOKEN : { < ELSE : "ELSE" | "Else" | "else" > }
 TOKEN : { < ENDIF : "ENDIF" | "Endif" | "endif" > }
 
 
@@ -231,24 +232,45 @@ void addElementToVariable() throws Exception : { Object elem; Token varName; } {
 //  	{ return addToElement(elem1, elem2); }
 //}
 
-void ifStatement() throws Exception : { boolean success; } {
+void ifStatement() throws Exception : { boolean success; boolean elsed = false; } {
   	< IF >
   	success = evaluation()
   	{
 		if(!success) {
+			while(this.token.kind != PCCConstants.ENDIF && this.token.kind != PCCConstants.ELSE) {
+//				System.out.println(this.token.kind);
+				this.token = getNextToken();
+			}
+			elsed = this.token.kind == PCCConstants.ELSE;
+		}
+  	}
+  	(
+  	  	(  	  	  < ELSE >
+  	  	) { 
+			if(success) {
+				while(this.token.kind != PCCConstants.ENDIF) { 
+					this.token = getNextToken();
+				}
+		}
+		  }
+		| statement()
+		| < NEWLINE > 
+  	)*
+  	{
+	  	if(success) {
+	  		getNextToken();
+//	  	    if(elsed) {
+//				while(this.token.kind != PCCConstants.ENDIF) {
+//					this.token = getNextToken();
+//				}
+//	  		}
+	  	}
+	  	  
+		if (elsed){
 			while(this.token.kind != PCCConstants.ENDIF) {
 				this.token = getNextToken();
 			}
 		}
-  	}
-  	(
-		statement()
-		| < NEWLINE > 
-  	)*
-  	{
-  	  if(success) {
-  	    getNextToken();
-  	  }
   	}
 //  	< ENDIF >
 }

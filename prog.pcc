@@ -1,6 +1,17 @@
 x = 8
-IF x = 10
-    print "yay"
+y = 7
+IF x = y
+    print "True"
+    IF x = y
+        print "True True"
+    ELSE
+        print "True False"
+    ENDIF
+ELSE
+    IF x = y
+        print "False True"
+    ELSE
+        print "False False"
+    ENDIF
 ENDIF
-print "nay"
-print "blah"
+print "Done"
